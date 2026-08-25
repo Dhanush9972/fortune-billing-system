@@ -1,0 +1,169 @@
+{% extends "layout.html" %}
+
+{% block title %}Quotation Engine | Fortune Power+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .split-layout { display: flex; gap: 30px; }
+    .main-form-area { flex: 7; }
+    .history-sidebar { flex: 3; background: var(--card-bg); border-radius: 8px; border: 1px solid var(--border-color); padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); height: fit-content; max-height: 80vh; overflow-y: auto;}
+    
+    .form-section { background: var(--card-bg); padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 30px; border: 1px solid var(--border-color); }
+    .row { display: flex; gap: 15px; margin-bottom: 15px; }
+    .col { flex: 1; }
+    label { font-weight: 600; display: block; margin-bottom: 5px; font-size: 14px; }
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 5px; background: var(--input-bg); color: var(--text-color); font-family: inherit; box-sizing: border-box; }
+    
+    .item-row { background: var(--bg-color); padding: 20px; border: 1px solid var(--border-color); border-radius: 6px; margin-bottom: 20px; }
+    .primary-inputs { display: flex; gap: 10px; margin-bottom: 15px; }
+    .tax-inputs { display: flex; gap: 10px; justify-content: flex-end; align-items: center; background: rgba(0,0,0,0.03); padding: 15px; border-radius: 6px; }
+    [data-theme="dark"] .tax-inputs { background: rgba(255,255,255,0.03); }
+
+    button { padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    .btn-add { background-color: #17a2b8; color: white; margin-top: 5px; }
+    .btn-submit { background-color: #28a745; color: white; width: 100%; padding: 18px; font-size: 18px; }
+    
+    /* History List Styling */
+    .history-item { padding: 15px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+    .history-item:last-child { border-bottom: none; }
+    .btn-view { background: var(--sidebar-bg); color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<h2 style="margin-top:0; border-bottom: 2px solid var(--border-color); padding-bottom: 15px;">📄 Smart Quotation Engine</h2>
+
+<div class="split-layout">
+    
+    <div class="main-form-area">
+        <form method="POST" action="/generate">
+            
+            <div class="form-section">
+                <h3 style="margin-top:0; color:var(--accent-color);">1. Client Details</h3>
+                
+                <div class="row">
+                    <div class="col">
+                        <label>Select Existing (Auto-fills) OR Type New:</label>
+                        <select id="customer_select" onchange="autoFillCustomer()" style="margin-bottom: 10px;">
+                            <option value="">-- Type Custom Details Below --</option>
+                            {% for c in customers %}
+                            <option value="{{ c.id }}" data-title="{{ c.title }}" data-name="{{ c.name }}" data-address="{{ c.address }}">{{ c.customer_id }} - {{ c.title }} {{ c.name }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <select name="title" id="custom_title" style="width: 100px;">
+                                <option value="Mr.">Mr.</option>
+                                <option value="Mrs.">Mrs.</option>
+                                <option value="Ms.">Ms.</option>
+                                <option value="M/s.">M/s.</option>
+                            </select>
+                            <input type="text" name="customer_name" id="custom_name" placeholder="Customer Name (Required)" required style="flex: 1;">
+                        </div>
+                    </div>
+                    
+                    <div class="col">
+                        <label>Top Right Custom Text (Optional):</label>
+                        <input type="text" name="top_right_text" placeholder="e.g. Clearance Bill">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Customer Address:</label>
+                        <textarea name="customer_address" id="custom_address" rows="2" placeholder="Address (Required)" required></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3 style="margin-top:0; color:var(--accent-color);">2. Line Items (ERP Inventory)</h3>
+                
+                <div id="items-container">
+                    <div class="item-row">
+                        <label style="color:var(--accent-color);">Fetch Predefined Item:</label>
+                        <select class="item-dropdown" onchange="autoFillItem(this)" style="margin-bottom: 15px; border-color: var(--accent-color);">
+                            <option value="">-- Manual Entry OR Select from Inventory --</option>
+                            {% for i in items %}
+                            <option data-name="{{ i.name }}" data-cost="{{ i.cost }}" data-hsn="{{ i.hsn_sac }}" data-unit="{{ i.unit }}" data-cgst="{{ i.default_cgst }}" data-sgst="{{ i.default_sgst }}" data-igst="{{ i.default_igst }}">{{ i.item_code }} - {{ i.name }}</option>
+                            {% endfor %}
+                        </select>
+
+                        <div class="primary-inputs">
+                            <input type="text" name="item_name[]" placeholder="Item Name" style="flex: 3;" required>
+                            <input type="text" name="hsn[]" placeholder="HSN/SAC" style="flex: 1;" required>
+                            <input type="number" step="0.01" name="qty[]" placeholder="Qty" style="flex: 0.5;" required>
+                            <input type="text" name="unit[]" placeholder="Unit" style="flex: 1;" required>
+                            <input type="number" step="0.01" name="price[]" placeholder="Price/Unit (₹)" style="flex: 1.5;" required>
+                        </div>
+                        <div class="tax-inputs">
+                            <span style="font-weight:bold; font-size:14px; margin-right:10px;">Tax Override:</span>
+                            <input type="number" step="0.01" name="cgst[]" placeholder="CGST %" required>
+                            <input type="number" step="0.01" name="sgst[]" placeholder="SGST %" required>
+                            <input type="number" step="0.01" name="igst[]" placeholder="IGST %" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn-add" onclick="addItem()">+ Add Another Blank Row</button>
+            </div>
+
+            <button type="submit" class="btn-submit">Generate ERP PDF Quotation</button>
+        </form>
+    </div>
+
+    <div class="history-sidebar">
+        <h3 style="margin-top:0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">🕒 Recent Quotations</h3>
+        {% for h in history %}
+        <div class="history-item">
+            <div>
+                <strong>{{ h.quote_no }}</strong><br>
+                <span style="font-size:12px; color:var(--input-text);">{{ h.name }} | {{ h.date }}</span><br>
+                <span style="font-weight:bold; color:var(--accent-color); font-size:13px;">₹ {{ "{:,.2f}".format(h.grand_total) }}</span>
+            </div>
+            <a href="/bill/{{ h.id }}" class="btn-view" target="_blank">View PDF</a>
+        </div>
+        {% else %}
+        <p style="font-size:13px; color:var(--input-text);">No past bills found.</p>
+        {% endfor %}
+    </div>
+
+</div>
+
+<script>
+function autoFillCustomer() {
+    const select = document.getElementById("customer_select");
+    const titleBox = document.getElementById("custom_title");
+    const nameBox = document.getElementById("custom_name");
+    const addressBox = document.getElementById("custom_address");
+    
+    if(select.value === "") {
+        titleBox.value = "Mr.";
+        nameBox.value = "";
+        addressBox.value = "";
+        return;
+    }
+    const selectedOption = select.options[select.selectedIndex];
+    titleBox.value = selectedOption.getAttribute("data-title") || "Mr.";
+    nameBox.value = selectedOption.getAttribute("data-name") || "";
+    addressBox.value = selectedOption.getAttribute("data-address") || "";
+}
+
+function autoFillItem(dropdown) {
+    const row = dropdown.closest('.item-row');
+    const opt = dropdown.options[dropdown.selectedIndex];
+    if(dropdown.value === "") return; 
+
+    row.querySelector('[name="item_name[]"]').value = opt.getAttribute("data-name") || "";
+    row.querySelector('[name="hsn[]"]').value = opt.getAttribute("data-hsn") || "";
+    row.querySelector('[name="price[]"]').value = opt.getAttribute("data-cost") || "";
+    row.querySelector('[name="unit[]"]').value = opt.getAttribute("data-unit") || "";
+    row.querySelector('[name="cgst[]"]').value = opt.getAttribute("data-cgst") || "0";
+    row.querySelector('[name="sgst[]"]').value = opt.getAttribute("data-sgst") || "0";
+    row.querySelector('[name="igst[]"]').value = opt.getAttribute("data-igst") || "0";
+}
+
+function addItem() {
+    const rowHTML = document.querySelector('.item-row').outerHTML;
+    document.getElementById('items-container').insertAdjacentHTML('beforeend', rowHTML);
+}
+</script>
+{% endblock %}

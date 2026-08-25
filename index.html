@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>V-Wave Energies | Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .item-row { display: flex; gap: 10px; margin-bottom: 10px; padding: 10px; background: #f9f9f9; border: 1px solid #ddd; }
+        input, textarea, button { padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        .btn-add { background: #007bff; color: white; border: none; cursor: pointer; padding: 10px; }
+        .btn-submit { background: #28a745; color: white; border: none; width: 100%; padding: 15px; font-size: 16px; margin-top: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>V-Wave Quotation Generator</h2>
+    <form method="POST" action="/">
+        <label>Customer Name:</label>
+        <input type="text" name="customer_name" style="width: 100%;" required>
+
+        <label>Customer Address:</label>
+        <textarea name="customer_address" rows="3" style="width: 100%;" required></textarea>
+
+        <h3>Items</h3>
+        <div id="items-container">
+            <div class="item-row">
+                <input type="text" name="item_name[]" placeholder="Item Name" style="flex: 3;" required>
+                <input type="text" name="hsn[]" placeholder="HSN" style="flex: 1;" required>
+                <input type="number" name="qty[]" placeholder="Qty" style="flex: 1;" required>
+                <input type="number" name="price[]" placeholder="Price" style="flex: 1;" required>
+                <input type="number" name="gst[]" placeholder="GST %" style="flex: 1;" required>
+            </div>
+        </div>
+        <button type="button" class="btn-add" onclick="addItem()">+ Add Another Item</button>
+
+        <button type="submit" class="btn-submit">Generate Official Bill</button>
+    </form>
+</div>
+
+<script>
+function addItem() {
+    const row = `
+        <div class="item-row">
+            <input type="text" name="item_name[]" placeholder="Item Name" style="flex: 3;" required>
+            <input type="text" name="hsn[]" placeholder="HSN" style="flex: 1;" required>
+            <input type="number" name="qty[]" placeholder="Qty" style="flex: 1;" required>
+            <input type="number" name="price[]" placeholder="Price" style="flex: 1;" required>
+            <input type="number" name="gst[]" placeholder="GST %" style="flex: 1;" required>
+        </div>
+    `;
+    document.getElementById('items-container').insertAdjacentHTML('beforeend', row);
+}
+</script>
+</body>
+</html>

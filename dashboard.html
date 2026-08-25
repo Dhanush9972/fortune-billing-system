@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block title %}Home | Fortune Power+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .welcome-header { margin-bottom: 40px; }
+    .welcome-header h1 { color: var(--text-color); margin-bottom: 5px; font-size: 28px; }
+    .welcome-header p { color: var(--input-text); font-size: 16px; margin-top: 0; }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .card {
+        background-color: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 40px 30px;
+        text-align: center;
+        text-decoration: none;
+        color: var(--text-color);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-color: var(--accent-color);
+    }
+
+    .card-icon { font-size: 60px; margin-bottom: 20px; }
+    .card-title { font-size: 22px; font-weight: bold; margin-bottom: 15px; color: var(--sidebar-bg); }
+    [data-theme="dark"] .card-title { color: var(--accent-color); }
+    .card-desc { font-size: 14px; color: var(--input-text); line-height: 1.5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="welcome-header">
+    <h1>Welcome back, Admin</h1>
+    <p>Select a module below to manage your enterprise operations.</p>
+</div>
+
+<div class="dashboard-grid">
+    <a href="/customers" class="card">
+        <div class="card-icon">👥</div>
+        <div class="card-title">Customer Database</div>
+        <div class="card-desc">Manage client profiles, add customer photos, view order histories, and track total business generated per client.</div>
+    </a>
+
+    <a href="/items" class="card">
+        <div class="card-icon">📦</div>
+        <div class="card-title">Item & Rate Data</div>
+        <div class="card-desc">Manage inventory, upload product images, set unique item codes, and configure custom CGST/SGST/IGST rates.</div>
+    </a>
+
+    <a href="/quotation" class="card">
+        <div class="card-icon">📄</div>
+        <div class="card-title">Quotation Bill Engine</div>
+        <div class="card-desc">Generate pixel-perfect PDF quotations using saved customers and inventory items with automatic tax calculation.</div>
+    </a>
+</div>
+{% endblock %}

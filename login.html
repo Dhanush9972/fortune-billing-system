@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fortune Enterprise | Secure Login</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .login-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); 
+            width: 100%;
+            max-width: 350px; 
+            text-align: center; 
+        }
+        .login-container h2 { 
+            color: #004085; 
+            margin-bottom: 5px; 
+            font-size: 24px;
+        }
+        .login-container p {
+            color: #6c757d;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border: 1px solid #ced4da; 
+            border-radius: 5px; 
+            box-sizing: border-box; 
+            font-size: 14px;
+        }
+        input:focus {
+            border-color: #80bdff;
+            outline: none;
+        }
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: #0056b3; 
+            color: white; 
+            border: none; 
+            border-radius: 5px;
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #004085;
+        }
+        .error-message { 
+            color: #dc3545; 
+            font-size: 14px; 
+            margin-bottom: 15px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>FORTUNE ENTERPRISE</h2>
+        <p>Secure Billing System</p>
+        
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="error-message">{{ messages[0] }}</div>
+          {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="/login">
+            <input type="text" name="username" placeholder="Username (admin)" required autocomplete="off">
+            <input type="password" name="password" placeholder="Password (admin123)" required>
+            <button type="submit">Secure Login</button>
+        </form>
+    </div>
+</body>
+</html>

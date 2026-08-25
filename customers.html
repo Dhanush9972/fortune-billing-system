@@ -1,0 +1,116 @@
+{% extends "layout.html" %}
+
+{% block title %}Customer Database | Fortune Power+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-header { border-bottom: 2px solid var(--border-color); padding-bottom: 15px; margin-bottom: 30px; }
+    
+    /* Form Styles */
+    .form-section { background: var(--card-bg); padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); margin-bottom: 40px; border: 1px solid var(--border-color); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group.full-width { grid-column: span 2; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+    input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 5px; background: var(--input-bg); color: var(--text-color); font-family: inherit; box-sizing: border-box; }
+    input[type="file"] { padding: 9px; }
+    .btn-submit { background: var(--accent-color); color: white; border: none; padding: 15px 30px; font-size: 16px; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.3s; margin-top: 10px;}
+    .btn-submit:hover { opacity: 0.9; transform: translateY(-2px); }
+
+    /* Table Styles */
+    .table-section h3 { margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+    th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border-color); }
+    th { background: var(--sidebar-bg); color: var(--sidebar-text); font-weight: bold; text-transform: uppercase; font-size: 13px; letter-spacing: 0.5px; }
+    [data-theme="dark"] th { background: #2a2a2a; }
+    tr:hover { background-color: rgba(0,0,0,0.02); }
+    [data-theme="dark"] tr:hover { background-color: rgba(255,255,255,0.02); }
+    
+    /* Customer Avatar */
+    .avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
+    .no-avatar { width: 45px; height: 45px; border-radius: 50%; background: #ccc; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 12px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2 style="margin:0;">👥 Customer Database</h2>
+</div>
+
+<div class="form-section">
+    <h3 style="margin-top:0; color: var(--accent-color);">+ Add New Client</h3>
+    <form method="POST" action="/customers" enctype="multipart/form-data">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Customer Title & Name</label>
+                <div style="display: flex; gap: 10px;">
+                    <select name="title" style="width: 100px;">
+                        <option value="Mr.">Mr.</option><option value="Mrs.">Mrs.</option><option value="Ms.">Ms.</option><option value="M/s.">M/s.</option>
+                    </select>
+                    <input type="text" name="name" placeholder="Full Name or Company" required style="flex: 1;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" name="phone" placeholder="+91 9876543210" required>
+            </div>
+            <div class="form-group full-width">
+                <label>Complete Address</label>
+                <textarea name="address" rows="2" placeholder="Billing Address..." required></textarea>
+            </div>
+            <div class="form-group full-width">
+                <label>Customer Photo / Company Logo (Optional)</label>
+                <input type="file" name="photo" accept="image/png, image/jpeg, image/jpg">
+            </div>
+        </div>
+        <button type="submit" class="btn-submit">Save Customer Record</button>
+    </form>
+</div>
+
+<div class="table-section">
+    <h3>Client Directory</h3>
+    <table>
+        <thead>
+            <tr>
+                <th width="80">Photo</th>
+                <th>Client ID</th>
+                <th>Name</th>
+                <th>Phone & Address</th>
+                <th>Orders & Biz</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in customers %}
+            <tr>
+                <td>
+                    {% if c.photo_filename %}
+                        <img src="{{ url_for('static', filename='uploads/' + c.photo_filename) }}" class="avatar" alt="Photo">
+                    {% else %}
+                        <div class="no-avatar">N/A</div>
+                    {% endif %}
+                </td>
+                <td style="font-weight:bold; color:var(--accent-color);">{{ c.customer_id }}</td>
+                <td style="font-weight:bold;">{{ c.title }} {{ c.name }}</td>
+                <td>
+                    📞 {{ c.phone }}<br>
+                    <span style="font-size: 12px; color: var(--input-text);">📍 {{ c.address[:30] }}...</span>
+                </td>
+                <td>
+                    <span style="background: #e9ecef; color: #333; padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: bold;">{{ c.total_orders }} Bills</span><br>
+                    <span style="font-weight:bold; font-size: 12px;">₹ {{ "{:,.2f}".format(c.total_business) }}</span>
+                </td>
+                <td style="display: flex; gap: 8px;">
+                    <a href="/edit_customer/{{ c.id }}" style="background: #ffc107; color: #000; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold;">Edit</a>
+                    <form action="/delete_customer/{{ c.id }}" method="POST" onsubmit="return confirm('WARNING: Are you sure you want to delete this customer?');" style="margin:0;">
+                        <button type="submit" style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" style="text-align:center; padding: 30px;">No customers found. Add your first client above!</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
