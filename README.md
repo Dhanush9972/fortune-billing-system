@@ -20,7 +20,8 @@ A secure, offline, Python-based Enterprise Resource Planning (ERP) and Customer 
 * **🌗 Modern UI & Security:** * Persistent Dark/Light mode user interface.
     * Protected by encrypted `Werkzeug` hashed login credentials.
     * Deployed locally using the high-performance `Waitress` WSGI production server.
-
+* ## Data base system locally in .db format:
+  To store the data of previous customers and item data and etc
 ---
 
 ## 🧮 How the Billing Engine Works
@@ -43,9 +44,9 @@ If you are setting this application up on a local machine or for a new client, f
 ### 1. Clone the Repository:
 
 bash
-git clone [https://github.com/Dhanush9972/fortune-billing-system.git](https://github.com/Dhanush9972/fortune-billing-system2.git)
+git clone [https://github.com/Dhanush9972/fortune-billing-system.git](https://github.com/Dhanush9972/fortune-billing-system.git)
 
-cd fortune-billing-system2
+cd fortune-billing-system
 
 ### 2. Create and Activate a Virtual Environment:
 Isolate the project dependencies safely:
@@ -83,9 +84,20 @@ Bash
 python app.py
 Access the App: Open a web browser and navigate to http://127.0.0.1:5000
 
+### Having a database 
+1.to store customer data
+2.To store item datas
+
 ### Default Login:
  admin / admin123
 
-Developed by Dhanush R 
+### To change the password 
+use update_pass.py 
+1. go to update_pass.py and write the username and password of your choice
+2. save the file
+3. go to terminal and run the ("update_pass.py") file
+4. use command : python update_pass.py
+
+Developed by  ❤️ Dhanush R 
 
 Github : ("Dhanush9972")
